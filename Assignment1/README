@@ -1,0 +1,87 @@
+###############################################################################
+Building
+###############################################################################
+
+invoke this command to build all three components, and put the executables 
+in a directory. 
+
+"javac -d build/ Calculator.java; javac -d build/ InputOutput.java; javac -d 
+build/ Logger.java"
+
+This assumes that javac is on your path, and that you are issuing the command 
+in the same directory as the source files. The executables will be written 
+into a './build' directory. 
+
+###############################################################################
+Running
+###############################################################################
+
+
+Each executable needs to be started individually, and all of them accept some
+degree of command line argument to specify ports.
+
+java InputOutput <Calculator port number>
+Java Calculator <Calculator port number> <Logger port number>
+java Logger <Logger port number>
+
+There is minimal handling and safety around these arguments, so if you
+incorrectly specify the port numbers, the executables may crash or fail
+silently. The port numbers that share a name need to match across the
+various executables. 
+
+The components can be started in any order, however all should be running
+before you attempt to issue commands via InputOutput
+
+To use the calculator submit a expression of the form:
+     <number> <operation> <number>
+with a space between each term.
+
+To request the full body of the log input: 
+     "List contents of the log" or "PRINT_LOG_CMD"
+with out the quotation marks, capitalization matters.
+
+###############################################################################
+Limitations or Issues
+###############################################################################
+
+The calculator only handles very simple expressions,
+     <number> <operation> <number>.
+
+If it were necessary to support a wider set of operations, and support more 
+terms, and order of operations, we could process each expression with the 
+shunting yard algorithm and evaluate the stack, but this level of depth 
+was not a requirement for this assignment.
+
+There must also be a space between each term, "3+4" will not parse correctly
+where "3 + 4" will succeed.
+ 
+
+The log in the Logger is implemented as an Arraylist of strings, this means 
+that the log is lost every time the logger is restarted, and that eventually 
+if this were in a productions system, the memory constraints would become 
+prohibitive as kb of strings slowly stacked up. It would be better to offload 
+this to a text file at the minimum to keep data persistence, or use a database 
+hosted elsewhere to allow for data persistence and scalability.
+
+The Log also most likely needs to be mutex protected if one log is being shared 
+by multiple calculators. It does not matter too much right now since it would 
+be difficult for a user to issue commands via InputOutput fast enough to trip 
+a race condition.
+
+The error handling for IOExceptions is pretty limited, in production we would 
+want some sort of graceful recovery in the event a socket closed unexpectedly. 
+However since all of these servers are connected locally, network conditions 
+are much more stable, and this exercise did not prioritize robust error 
+handling
+
+###############################################################################
+Architecture Diagram
+###############################################################################
+
+This diagram not only depicts the Components: InputOutput, Logger, and 
+Calculator, it also depicts some of the internals of these components and the 
+connectors. This level of detail was chosen because otherwise the diagram 
+would have been three boxes in a row, with parallel lines between each adjacent 
+box. By digging into the classes and important methods of each component, and 
+connecting these sub-components the Architecture Diagram conveys more 
+information about the connections and relationships that make the system work. 
